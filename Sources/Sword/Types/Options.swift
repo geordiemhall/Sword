@@ -6,13 +6,20 @@
 //  Copyright © 2017 Alejandro Alonso. All rights reserved.
 //
 
+public enum AuthType
+{
+  case Bot
+  case Bearer
+  case Raw
+}
+
 /// Sword Options structure
 public struct SwordOptions {
 
   // MARK: Properties
 
   /// Whether or not the application is a bot or oauth bearer
-  public var isBot = true
+  public var authType: AuthType = .Bot
 
   /// Whether or not this bot will distribute it's shards across multiple process/machines
   public var isDistributed = false
@@ -30,13 +37,13 @@ public struct SwordOptions {
 
   /// Creates a default SwordOptions
   public init(
-    isBot: Bool = true,
+    authType: AuthType = .Bot,
     isDistributed: Bool = false,
     willCacheAllMembers: Bool = false,
     willLog: Bool = false,
     willShard: Bool = true
   ) {
-    self.isBot = isBot
+    self.authType = authType
     self.isDistributed = isDistributed
     self.willCacheAllMembers = willCacheAllMembers
     self.willLog = willLog
