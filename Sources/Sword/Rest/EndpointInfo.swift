@@ -203,6 +203,9 @@ extension Endpoint {
 
       case .modifyCurrentUser:
         return (.patch, "/users/@me")
+      
+      case .modifyCurrentUserSettings:
+        return (.patch, "/users/@me/settings")
 
       case let .modifyGuild(guild):
         return (.patch, "/guilds/\(guild)")

@@ -2071,6 +2071,71 @@ open class Sword: Eventable {
       }
     }
   }
+
+  /**
+   Sets bot or user's custom status
+
+   - parameter status: The text to set custom status to
+   - parameter duration: How long the status should last for
+   - parameter emoji: An emoji to accompany the status
+  */
+  @available(macOS 10.13, *)
+  public func setCustomStatus(
+    to status: String,
+    for duration: TimeInterval? = nil,
+    with emoji: String = "",
+    then completion: ((User?, RequestError?) -> ())? = nil
+  ) {
+    var statusObj: [String: Any] = [:]
+    statusObj["text"] = status
+
+    if !emoji.isEmpty {
+      statusObj["emoji_name"] = emoji
+    }
+
+    if let duration = duration
+    {
+      let expiresAtTime = Date.init(timeIntervalSinceNow: duration)
+      let iso8601DateFormatter = ISO8601DateFormatter()
+      iso8601DateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+      let expiresAtTimeString = iso8601DateFormatter.string(from: expiresAtTime)
+      statusObj["expires_at"] = expiresAtTimeString
+    }
+
+    self.request(
+      .modifyCurrentUserSettings,
+      body: [ "custom_status": statusObj ]
+    ) { [unowned self] data, error in
+      if let error = error {
+        completion?(nil, error)
+      }else {
+        completion?(User(self, data as! [String: Any]), nil)
+      }
+    }
+  }
+
+  /**
+   Clears bot or user's custom status
+  */
+  public func clearCustomStatus(
+    then completion: ((User?, RequestError?) -> ())? = nil
+  ) {
+    var body: [String: Any?] = [:]
+    // This should really be nil, but Discord seems to also clear by passing empty string,
+    // and avoid having to futz with a custom encoder that actually encodes nils
+    body["custom_status"] = "" 
+    self.request(
+      .modifyCurrentUserSettings,
+      body: body
+    ) { [unowned self] data, error in
+      if let error = error {
+        completion?(nil, error)
+      }else {
+        completion?(User(self, data as! [String: Any]), nil)
+      }
+    }
+  }
+  
   
   /**
    Used to spawn a shard

@@ -46,7 +46,7 @@ extension Sword {
       route += ".delete"
     }
 
-    var urlString = "https://discord.com/api/v7\(endpointInfo.url)"
+    var urlString = "https://discordapp.com/api/v8\(endpointInfo.url)"
 
     if let params = params {
       urlString += "?"
@@ -67,10 +67,12 @@ extension Sword {
     request.httpMethod = endpointInfo.method.rawValue
 
     if authorization {
-      if self.options.isBot {
+      if self.options.authType == .Bot {
         request.addValue("Bot \(token)", forHTTPHeaderField: "Authorization")
-      }else {
+      } else if self.options.authType == .Bearer {
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+      } else {
+        request.addValue("\(token)", forHTTPHeaderField: "Authorization")
       }
     }
 
@@ -94,6 +96,8 @@ extension Sword {
       }
 
       request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+      print("Request payload json: \(body.encode())")
     }
 
     #if os(macOS)
@@ -143,6 +147,8 @@ extension Sword {
           route
         )
       }
+
+      print("Response status code: \(response.statusCode)")
 
       if response.statusCode == 204 {
         completion(nil, nil)
